@@ -1,14 +1,23 @@
-explorer: explorer.c
-	gcc -o explorer explorer.c -I
+CC = gcc
+CFLAGS = -g -Wall
 
-generation: generation.c
-	gcc -o generation generation.c -I
+#
+# ~uncomment during usage
+#
+# explorer: explorer.c
+# 	$(CC) $(CFLAGS) -o explorer explorer.c
+
+# generation: generation.c
+# 	$(CC) $(CFLAGS) -o generation generation.c
 
 profilic: profilic.c
-	gcc -o profilic profilic.c -I
+	$(CC) $(CFLAGS) -o profilic profilic.c
 
-slug: slug.c
-	gcc -o slug slug.c -I
+# slug: slug.c
+# 	$(CC) $(CFLAGS) -o slug slug.c
 
-slugrace: slugrace.c
-	gcc -o slugrace slugrace.c -I
+# slugrace: slugrace.c
+# 	$(CC) $(CFLAGS) -o slugrace slugrace.c
+
+clean:
+	$(RM) profilic
