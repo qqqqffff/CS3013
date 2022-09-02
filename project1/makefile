@@ -7,8 +7,8 @@ CFLAGS = -g -Wall
 # explorer: explorer.c
 # 	$(CC) $(CFLAGS) -o explorer explorer.c
 
-# generation: generation.c
-# 	$(CC) $(CFLAGS) -o generation generation.c
+generation: generation.c
+	$(CC) $(CFLAGS) -o generation generation.c
 
 profilic: profilic.c
 	$(CC) $(CFLAGS) -o profilic profilic.c
@@ -20,4 +20,4 @@ profilic: profilic.c
 # 	$(CC) $(CFLAGS) -o slugrace slugrace.c
 
 clean:
-	$(RM) profilic
+	$(RM) profilic generation

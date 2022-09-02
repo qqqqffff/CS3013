@@ -1,2 +1,6 @@
-./project1/*.o
 /project1/*.dSYM
+/project1/generation
+/project1/explorer
+/project1/profilic
+/project1/slug
+/project1/slugrace

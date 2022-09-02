@@ -48,7 +48,9 @@ int main(){
         printf("Error forking\n");
         exit(EXIT_FAILURE);
     }
-    printf("[Parent]: Starting Child #%d\n", getpid());
+    if(rc > 0){
+        printf("[Parent]: Starting Child #%d\n", rc);
+    }
     for(int i = 0; i < children; i++){
         if(rc < 0){
             printf("Error forking\n");
@@ -71,7 +73,7 @@ int main(){
             }
             if(WIFEXITED(status)){
                 int exit_code = WEXITSTATUS(status);
-                printf("[Parent]: Child %d has finished with exit code, %d.\n", getpid(), exit_code);
+                printf("[Parent]: Child %d has finished with exit code, %d.\n", rc, exit_code);
             }
             rc = fork();
         }
