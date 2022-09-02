@@ -1,6 +1,7 @@
-CC = gcc
-CFLAGS = -g -Wall
+CC := gcc
+CFLAGS := -g -Wall
 
+all: slug profilic generation
 #
 # ~uncomment during usage
 #
@@ -13,11 +14,11 @@ generation: generation.c
 profilic: profilic.c
 	$(CC) $(CFLAGS) -o profilic profilic.c
 
-# slug: slug.c
-# 	$(CC) $(CFLAGS) -o slug slug.c
+slug: slug.c
+	$(CC) $(CFLAGS) -o slug slug.c
 
 # slugrace: slugrace.c
 # 	$(CC) $(CFLAGS) -o slugrace slugrace.c
 
 clean:
-	$(RM) profilic generation
+	$(RM) profilic generation slug

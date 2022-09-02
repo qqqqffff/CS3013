@@ -23,6 +23,8 @@ int main(){
     // creation of the array and the multiple children
     int children_count = (rand() % 6) + 8;
     printf("Number of decendents: %d\n", children_count);
+
+    
     int rc = fork();
     while(children_count > 0){
         if(rc > 0){
@@ -36,8 +38,6 @@ int main(){
                 printf("[Parent #%d]: Child #%d finished with code %d\n", getpid(), rc, exit_code);
                 exit(children_count);
             }
-            
-            
         }
         else if(rc == 0){
             printf("\t[Child #%d]: I am called with a count = %d\n", getpid(), children_count);
@@ -45,6 +45,5 @@ int main(){
             rc = fork();
         }
     }
-
     exit(0);
 }
