@@ -16,7 +16,7 @@ slug: slug.c
 	$(CC) $(CFLAGS) -o slug slug.c
 
 slugrace: slugrace.c
-	$(CC) $(CFLAGS) -o slugrace slugrace.c
+	$(CC) $(CFLAGS) -o slugrace slugrace.c -lm
 
 clean:
 	$(RM) profilic generation slug explorer slugrace
