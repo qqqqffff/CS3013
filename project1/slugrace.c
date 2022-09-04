@@ -18,7 +18,19 @@ int main(){
             cmdv[0] = "./slug";
             cmdv[1] = slugnumb;
             cmdv[2] = NULL;
-            execvp(cmd, cmdv);
+            if(fork() == 0){
+                execvp(cmd, cmdv);
+            }else{
+                int status;
+                if(waitpid(rc, &status, 0) == -1){
+                    exit(EXIT_FAILURE);
+                }
+                else{
+                    int exit_code = WEXITSTATUS(status);
+                    printf("[Parent #%d]: Child #%d finished with code %d\n", getpid(), rc, exit_code);
+                    exit(0);
+                }
+            }
         }
     }else if(rc > 0){
         // struct timespec start, finish, delta;
