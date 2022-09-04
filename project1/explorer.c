@@ -19,34 +19,32 @@ int main(){
     int seed;
     fscanf(fp, "%d", &seed);
     printf("Read seed value: %d\n\n", seed);
-  //  srand(seed);
-    printf("defining directories");
-   // const char * Directories[]= {"/home","/proc","/proc/sys","/usr","/boot","/sbin"};
+    srand(seed);
+   
+   char *Directories[] = {"/home","/proc","/proc/sys","/usr","/boot","/sbin"};
+   int i,j,tmp;
+   for(i= 5;i>0; i--){
+   	j=rand()%6;
+   	tmp = Directories[j];
+   	Directories[j] = Directories[i];
+   	Directories[i] = tmp;
+   }
     
-   char **Directories = calloc(6, sizeof(char *));
-   printf("space made");
-    Directories[0] = "/home";
-    Directories[1] = "/proc";
-    Directories[2] = "/proc/sys";
-    Directories[3] = "/usr";
-    Directories[4] = "/boot";
-    Directories[5] = "/sbin";
-  //  char *Directories[] = {"/home","/proc","/proc/sys","/usr","/boot","/sbin"};
-    printf("Directores: %d",sizeof(Directories));
-    char *Directories_order[6];
+   // printf("Directores: %d",sizeof(Directories));
+    //char **Directories_order = calloc(6, sizeof(char *));
 
     // assigning the random values
-    printf("Assigning directory order");
-    for(int i = 0; i < 6; i++){
-    Directories_order[i] =  Directories[(rand() %6)];
-    for(int j = 0; j<6; j++){
-    	    if(Directories[i] == Directories[j]){
-                Directories_order[i] = Directories[(rand() % 6)];
-                j = 0;
-                }
-            }
-            }
-    printf("finished assigning");
+    //printf("Assigning directory order");
+    //for(int i = 0; i < 6; i++){
+    //Directories_order[i] =  Directories[(rand() %6)+1];
+  //  for(int j = 0; j<6; j++){
+    //	    if(Directories[i] == Directories[j]){
+      //          Directories_order[i] = Directories[(rand() % 6)+1];
+        //        j = 0;
+          //      }
+         //   }
+           // }
+   // printf("finished assigning");
     // For debugging
     // for(int i = 0; i < children; i++){
     //     printf("children %d\'s number is: %d\n", i, children_values[i]);
@@ -62,8 +60,8 @@ int main(){
     //}
     int rc;
     for(int i = 0; i < 6; i++){
-    chdir(Directories_order[i]);
-    printf("Directory: %d",Directories_order[i]);
+    chdir(Directories[i]);
+    printf("Directory: %d",Directories[i]);
     rc = fork();
         if(rc < 0){
             printf("Error forking\n");
