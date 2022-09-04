@@ -20,31 +20,20 @@ int main(){
     fscanf(fp, "%d", &seed);
     printf("Read seed value: %d\n\n", seed);
     srand(seed);
+
+    char *Directories[] = {"/home","/proc","/proc/sys","/usr","/boot","/sbin"};
+   int i,j;
    
-   char *Directories[] = {"/home","/proc","/proc/sys","/usr","/boot","/sbin"};
-   int i,j,tmp;
    for(i= 5;i>0; i--){
    	j=rand()%6;
-   	tmp = Directories[j];
+   	char* tmp = Directories[j];
    	Directories[j] = Directories[i];
    	Directories[i] = tmp;
    }
-    
-   // printf("Directores: %d",sizeof(Directories));
-    //char **Directories_order = calloc(6, sizeof(char *));
+ // for(int i=0; i<6;i++){
+  //printf("Directory: %s \n",Directories[i]);
+  //}
 
-    // assigning the random values
-    //printf("Assigning directory order");
-    //for(int i = 0; i < 6; i++){
-    //Directories_order[i] =  Directories[(rand() %6)+1];
-  //  for(int j = 0; j<6; j++){
-    //	    if(Directories[i] == Directories[j]){
-      //          Directories_order[i] = Directories[(rand() % 6)+1];
-        //        j = 0;
-          //      }
-         //   }
-           // }
-   // printf("finished assigning");
     // For debugging
     // for(int i = 0; i < children; i++){
     //     printf("children %d\'s number is: %d\n", i, children_values[i]);
@@ -61,16 +50,16 @@ int main(){
     int rc;
     for(int i = 0; i < 6; i++){
     chdir(Directories[i]);
-    printf("Directory: %d",Directories[i]);
+    printf("Directory: %s \n",Directories[i]);
     rc = fork();
         if(rc < 0){
             printf("Error forking\n");
             exit(EXIT_FAILURE);
         }   
         else if(rc == 0){
-        char *cwd;
+        char* cwd = NULL;
         getcwd(cwd,sizeof(cwd));
-        char *command[] = {"ls ", "-tr",NULL};
+        char *command[] = {"ls","-tr", NULL};
         execvp("ls",command);
         exit(0);
         }
@@ -84,6 +73,7 @@ int main(){
                 printf("[Parent]: Child %d has finished with exit code, %d.\n", rc, exit_code);
             }
         }
-    }
-    exit(0);
+    } 
+    
+   exit(0);
 }
