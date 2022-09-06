@@ -32,8 +32,9 @@ int main(){
  
     int rc;
     for(int i = 0; i < 6; i++){
-    chdir(Directories[i]);
-    rc = fork();
+        chdir(Directories[i]);
+        printf("Selection #%d: %s\n", i + 1, Directories[i]);
+        rc = fork();
         if(rc < 0){
             printf("Error forking\n");
             exit(EXIT_FAILURE);
@@ -42,6 +43,7 @@ int main(){
             char* cwd = NULL;
             getcwd(cwd, sizeof(cwd));
             char *command[] = {"ls", "-tr", NULL};
+            printf("\t[Child #%d]: Executing \"%s %s\" command...\n", getpid(), command[0], command[1]);
             execvp("ls", command);
         }
         else{

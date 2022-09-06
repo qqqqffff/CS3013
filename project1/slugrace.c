@@ -43,7 +43,6 @@ int main(){
             }
             else if(rb > 0){
                 int status;
-                // waitpid(rb, &status, 0);
                 // printf("%d\n", );
             }
             else{

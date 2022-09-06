@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
         cmd = "id";
         cmdv = calloc(3, sizeof(char *));
         cmdv[0] = "id";
-        cmdv[1] = "-g";
+        cmdv[1] = "--group";
         cmdv[2] = NULL;
         command = "id --group";
         coinflip_n = "heads";
