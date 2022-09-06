@@ -41,14 +41,12 @@ int main(int argc, char *argv[]){
     // printf("[Slug #%d]: Read seed: %d, From %s\n\n", getpid(), seed , seed_file);
     srand(seed);
 
-    char *cmd = NULL;
     char **cmdv;
     char *command = NULL;
     int time = (rand() % 5) + 4;
     int coinflip = rand() % 2;
     char *coinflip_n = NULL;
     if(coinflip == 1){
-        cmd = "id";
         cmdv = calloc(3, sizeof(char *));
         cmdv[0] = "id";
         cmdv[1] = "--group";
@@ -57,7 +55,6 @@ int main(int argc, char *argv[]){
         coinflip_n = "heads";
     }
     else{
-        cmd = "last";
         cmdv = calloc(4, sizeof(char *));
         cmdv[0] = "last";
         cmdv[1] = "-i";
@@ -71,7 +68,7 @@ int main(int argc, char *argv[]){
     printf("[Slug #%d]: Breaktime over: executing \'%s\' command...\n", getpid(), command);
     int rc = fork();
     if(rc == 0){
-        execvp(cmd, cmdv);
+        execvp(cmdv[0], cmdv);
     }
     else if(rc > 0){
         int status;

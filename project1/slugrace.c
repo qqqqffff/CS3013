@@ -26,29 +26,37 @@ int main(){
     printf("Starting the race\n");
 
     int rc = fork();
-    int child_amt = 2;
+    int child_amt = 4;
     if(rc == 0){
-        for(int i = 1; i < child_amt + 1; i++){
-            char *slugnumb = malloc(sizeof(char) * (int)log10(i));
-            sprintf(slugnumb, "%d", i);
-            char **cmdv;
-            char *cmd = "./slug";
-            cmdv = calloc(3, sizeof(char *));
-            cmdv[0] = "./slug";
-            cmdv[1] = slugnumb;
-            cmdv[2] = NULL;
-            int rb = fork();
+        int rb = fork();
+        while(child_amt > 0){
             if(rb == 0){
-                execvp(cmd, cmdv);
+                if(fork() == 0){
+                    char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
+                    sprintf(slugnumb, "%d", child_amt);
+                    char **cmdv;
+                    cmdv = calloc(3, sizeof(char *));
+                    cmdv[0] = "./slug";
+                    cmdv[1] = slugnumb;
+                    cmdv[2] = NULL;
+                    execvp(cmdv[0], cmdv);
+                }
+                else{
+                    rb = fork();
+                    child_amt--;
+                }
             }
             else if(rb > 0){
                 int status;
-                // printf("%d\n", );
+                waitpid(rb, &status, WNOHANG);
+                printf("child finished\n");
+                exit(0);
             }
             else{
-                printf("Error forking");
+                printf("Error forking\n");
                 exit(EXIT_FAILURE);
             }
+
         }
     }
     else if(rc > 0){
