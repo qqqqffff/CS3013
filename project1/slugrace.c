@@ -20,46 +20,63 @@ void calc_delta(struct timespec t1, struct timespec t2, struct timespec *td){
     }
 }
 int main(){
-    int *completed[] = {false, false, false, false};
+    int completed[] = {0, 0, 0, 0};
     struct timespec start, finish, delta;
     clock_gettime(CLOCK_REALTIME, &start);
-    printf("Starting the race\n");
+    printf("[Parent]: Starting the race\n");
 
     int rc = fork();
     int child_amt = 4;
-    if(rc == 0){
+    while(child_amt > 0){
+        if(rc == 0){
+            char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
+            sprintf(slugnumb, "%d", child_amt);
+            char **cmdv;
+            cmdv = calloc(3, sizeof(char *));
+            cmdv[0] = "./slug";
+            cmdv[1] = slugnumb;
+            cmdv[2] = NULL;
+            completed[4 - child_amt] = (int) getpid();
+            if(fork() == 0){
+                execvp(cmdv[0], cmdv);
+            }
+            else{
+
+            }
+            child_amt--;
+            rc = fork();
+        }
+        else if(rc > 0){
+            int status;
+            waitpid(rc, &status, 0);
+            // printf("child amt: %d\n", child_amt);
+            exit(0);
+        }
+    }
+    exit(0);
+}
+
+/*
+if(rc == 0){
         int rb = fork();
         while(child_amt > 0){
             if(rb == 0){
-                if(fork() == 0){
-                    char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
-                    sprintf(slugnumb, "%d", child_amt);
-                    char **cmdv;
-                    cmdv = calloc(3, sizeof(char *));
-                    cmdv[0] = "./slug";
-                    cmdv[1] = slugnumb;
-                    cmdv[2] = NULL;
-                    execvp(cmdv[0], cmdv);
-                }
-                else{
-                    rb = fork();
-                    child_amt--;
-                }
+                
             }
             else if(rb > 0){
-            double time = .2;
-                wait(&time);
-                int status;
-                while (waitpid(rb, &status, WNOHANG)==0){
-                //printf("child finished\n");
-                clock_gettime(CLOCK_REALTIME, &finish);
-            calc_delta(start, finish, &delta);
-           // printf("current slugs: %d", getpid());
-            printf("Slug: %d  Time so far: %d.%.9ld\n", getpid(), (int)delta.tv_sec, delta.tv_nsec);
+                // double time = .2;
+                // wait(&time);
                 
-                sleep(2);
-                }
-}
+                // printf("child finished\n");
+                // while (waitpid(rb, &status, WNOHANG)==0){
+                //     //printf("child finished\n");
+                //     clock_gettime(CLOCK_REALTIME, &finish);
+                //     calc_delta(start, finish, &delta);
+                //     // printf("current slugs: %d", getpid());
+                //     printf("Slug: %d  Time so far: %d.%.9ld\n", getpid(), (int)delta.tv_sec, delta.tv_nsec);
+                //     usleep(200);
+                // }
+            }
             else{
                 printf("Error forking\n");
                 exit(EXIT_FAILURE);
@@ -82,7 +99,4 @@ int main(){
         printf("Error forking");
         exit(EXIT_FAILURE);
     }
-
-
-    exit(0);
-}
+*/
