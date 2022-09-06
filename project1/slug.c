@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
     }
     int seed;
     fscanf(fp, "%d", &seed);
-    printf("[Slug #%d]: Read seed: %d, From %s\n\n", getpid(), seed , seed_file);
+    // printf("[Slug #%d]: Read seed: %d, From %s\n\n", getpid(), seed , seed_file);
     srand(seed);
 
     char *cmd = NULL;
@@ -46,6 +46,7 @@ int main(int argc, char *argv[]){
     char *command = NULL;
     int time = (rand() % 5) + 4;
     int coinflip = rand() % 2;
+    char *coinflip_n = NULL;
     if(coinflip == 1){
         cmd = "id";
         cmdv = calloc(3, sizeof(char *));
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]){
         cmdv[1] = "-g";
         cmdv[2] = NULL;
         command = "id --group";
+        coinflip_n = "heads";
     }
     else{
         cmd = "last";
@@ -62,10 +64,13 @@ int main(int argc, char *argv[]){
         cmdv[2] = "-x";
         cmdv[3] = NULL;
         command = "last -i -x";
+        coinflip_n = "tails";
     }
-    printf("[Slug #%d]: I'll take %d seconds. Coin flip: %d\n", getpid(), time, coinflip);
+    printf("[Slug #%d]: I'll take %d seconds. Coin flip: %s\n", getpid(), time, coinflip_n);
     sleep(time);
     printf("[Slug #%d]: Breaktime over: executing \'%s\' command...\n", getpid(), command);
-    execvp(cmd, cmdv);
+    if(fork() == 0){
+        execvp(cmd, cmdv);
+    }
     exit(0);
 }
