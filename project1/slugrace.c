@@ -47,11 +47,19 @@ int main(){
                 }
             }
             else if(rb > 0){
+            double time = .2;
+                wait(&time);
                 int status;
-                waitpid(rb, &status, WNOHANG);
-                printf("child finished\n");
-                exit(0);
-            }
+                while (waitpid(rb, &status, WNOHANG)==0){
+                //printf("child finished\n");
+                clock_gettime(CLOCK_REALTIME, &finish);
+            calc_delta(start, finish, &delta);
+           // printf("current slugs: %d", getpid());
+            printf("Slug: %d  Time so far: %d.%.9ld\n", getpid(), (int)delta.tv_sec, delta.tv_nsec);
+                
+                sleep(2);
+                }
+}
             else{
                 printf("Error forking\n");
                 exit(EXIT_FAILURE);
@@ -67,7 +75,7 @@ int main(){
         else{
             clock_gettime(CLOCK_REALTIME, &finish);
             calc_delta(start, finish, &delta);
-            printf("Time to completion: %d.%.9ld\n", (int)delta.tv_sec, delta.tv_nsec);
+            printf("Child: %d finished in: %d.%.9ld\n",rc, (int)delta.tv_sec, delta.tv_nsec);
         }    
     }
     else{
