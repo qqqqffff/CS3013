@@ -69,8 +69,17 @@ int main(int argc, char *argv[]){
     printf("[Slug #%d]: I'll take %d seconds. Coin flip: %s\n", getpid(), time, coinflip_n);
     sleep(time);
     printf("[Slug #%d]: Breaktime over: executing \'%s\' command...\n", getpid(), command);
-    if(fork() == 0){
+    int rc = fork();
+    if(rc == 0){
         execvp(cmd, cmdv);
+    }
+    else if(rc > 0){
+        int status;
+        waitpid(rc, &status, 0);
+    }
+    else{
+        printf("Error forking");
+        exit(EXIT_FAILURE);
     }
     exit(0);
 }

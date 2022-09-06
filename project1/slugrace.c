@@ -20,11 +20,15 @@ void calc_delta(struct timespec t1, struct timespec t2, struct timespec *td){
     }
 }
 int main(){
-    bool *completed[] = {false, false, false, false};
+    int *completed[] = {false, false, false, false};
+    struct timespec start, finish, delta;
+    clock_gettime(CLOCK_REALTIME, &start);
+    printf("Starting the race\n");
+
     int rc = fork();
     int child_amt = 2;
     if(rc == 0){
-        for(int i = 1; i < child_amt; i++){
+        for(int i = 1; i < child_amt + 1; i++){
             char *slugnumb = malloc(sizeof(char) * (int)log10(i));
             sprintf(slugnumb, "%d", i);
             char **cmdv;
@@ -34,12 +38,13 @@ int main(){
             cmdv[1] = slugnumb;
             cmdv[2] = NULL;
             int rb = fork();
-            if(rb > 0){
-                int status;
-                waitpid(rb, &status, 0);
-            }
-            else if(rb == 0){
+            if(rb == 0){
                 execvp(cmd, cmdv);
+            }
+            else if(rb > 0){
+                int status;
+                // waitpid(rb, &status, 0);
+                // printf("%d\n", );
             }
             else{
                 printf("Error forking");
@@ -48,8 +53,6 @@ int main(){
         }
     }
     else if(rc > 0){
-        struct timespec start, finish, delta;
-        clock_gettime(CLOCK_REALTIME, &start);
         int status;
         if(waitpid(rc, &status, 0) == -1){
             exit(EXIT_FAILURE);
@@ -58,10 +61,9 @@ int main(){
             clock_gettime(CLOCK_REALTIME, &finish);
             calc_delta(start, finish, &delta);
             printf("Time to completion: %d.%.9ld\n", (int)delta.tv_sec, delta.tv_nsec);
-            
-        }
-        
-    }else{
+        }    
+    }
+    else{
         printf("Error forking");
         exit(EXIT_FAILURE);
     }

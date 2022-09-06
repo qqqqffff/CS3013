@@ -41,8 +41,8 @@ int main(){
         else if(rc == 0){
             char* cwd = NULL;
             getcwd(cwd, sizeof(cwd));
-            char *command[] = {"ls","-tr", NULL};
-            execvp("ls",command);
+            char *command[] = {"ls", "-tr", NULL};
+            execvp("ls", command);
         }
         else{
             int status;
