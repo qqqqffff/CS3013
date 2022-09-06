@@ -27,31 +27,30 @@ int main(){
 
     int rc = fork();
     int child_amt = 4;
-    while(child_amt > 0){
-        if(rc == 0){
-            char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
-            sprintf(slugnumb, "%d", child_amt);
-            char **cmdv;
-            cmdv = calloc(3, sizeof(char *));
-            cmdv[0] = "./slug";
-            cmdv[1] = slugnumb;
-            cmdv[2] = NULL;
-            completed[4 - child_amt] = (int) getpid();
-            if(fork() == 0){
-                execvp(cmdv[0], cmdv);
+    if(rc == 0){
+        while(child_amt > 0){
+            if(rc == 0){
+                char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
+                sprintf(slugnumb, "%d", child_amt);
+                char **cmdv;
+                cmdv = calloc(3, sizeof(char *));
+                cmdv[0] = "./slug";
+                cmdv[1] = slugnumb;
+                cmdv[2] = NULL;
+                completed[4 - child_amt] = (int) getpid();
+                child_amt--;
+                rc = fork();
+                if(rc > 0){
+                    execvp(cmdv[0], cmdv);
+                }
             }
-            else{
-
-            }
-            child_amt--;
-            rc = fork();
         }
-        else if(rc > 0){
-            int status;
-            waitpid(rc, &status, 0);
-            // printf("child amt: %d\n", child_amt);
-            exit(0);
-        }
+    }
+    if(rc > 0){
+        waitpid(rc, NULL, 0);
+        clock_gettime(CLOCK_REALTIME, &finish);
+        calc_delta(start, finish, &delta);
+        printf("[Parent]: Race finished in: %d.%.9ld\n",rc, (int)delta.tv_sec, delta.tv_nsec);
     }
     exit(0);
 }
@@ -70,8 +69,8 @@ if(rc == 0){
                 // printf("child finished\n");
                 // while (waitpid(rb, &status, WNOHANG)==0){
                 //     //printf("child finished\n");
-                //     clock_gettime(CLOCK_REALTIME, &finish);
-                //     calc_delta(start, finish, &delta);
+                    clock_gettime(CLOCK_REALTIME, &finish);
+                    calc_delta(start, finish, &delta);
                 //     // printf("current slugs: %d", getpid());
                 //     printf("Slug: %d  Time so far: %d.%.9ld\n", getpid(), (int)delta.tv_sec, delta.tv_nsec);
                 //     usleep(200);
