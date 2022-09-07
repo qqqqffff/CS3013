@@ -22,80 +22,65 @@ void calc_delta(struct timespec t1, struct timespec t2, struct timespec *td){
 int main(){
     int completed[] = {0, 0, 0, 0};
     struct timespec start, finish, delta;
-    clock_gettime(CLOCK_REALTIME, &start);
-    printf("[Parent]: Starting the race\n");
-
-    int rc = fork();
+   
     int child_amt = 4;
-    if(rc == 0){
-        while(child_amt > 0){
-            if(rc == 0){
-                char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
+    
+     char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
                 sprintf(slugnumb, "%d", child_amt);
                 char **cmdv;
                 cmdv = calloc(3, sizeof(char *));
                 cmdv[0] = "./slug";
                 cmdv[1] = slugnumb;
                 cmdv[2] = NULL;
-                completed[4 - child_amt] = (int) getpid();
-                child_amt--;
-                rc = fork();
-                if(rc > 0){
-                    execvp(cmdv[0], cmdv);
-                }
-            }
-        }
-    }
-    if(rc > 0){
-        waitpid(rc, NULL, 0);
-        clock_gettime(CLOCK_REALTIME, &finish);
-        calc_delta(start, finish, &delta);
-        printf("[Parent]: Race finished in: %d.%.9ld\n",rc, (int)delta.tv_sec, delta.tv_nsec);
-    }
-    exit(0);
-}
-
-/*
-if(rc == 0){
-        int rb = fork();
-        while(child_amt > 0){
-            if(rb == 0){
-                
-            }
-            else if(rb > 0){
-                // double time = .2;
-                // wait(&time);
-                
-                // printf("child finished\n");
-                // while (waitpid(rb, &status, WNOHANG)==0){
-                //     //printf("child finished\n");
-                    clock_gettime(CLOCK_REALTIME, &finish);
-                    calc_delta(start, finish, &delta);
-                //     // printf("current slugs: %d", getpid());
-                //     printf("Slug: %d  Time so far: %d.%.9ld\n", getpid(), (int)delta.tv_sec, delta.tv_nsec);
-                //     usleep(200);
-                // }
-            }
-            else{
-                printf("Error forking\n");
-                exit(EXIT_FAILURE);
-            }
-
-        }
-    }
-    else if(rc > 0){
-        int status;
-        if(waitpid(rc, &status, 0) == -1){
-            exit(EXIT_FAILURE);
+    int rc;
+clock_gettime(CLOCK_REALTIME, &start);
+    printf("[Parent]: Starting the race\n");
+    for(int i=0;i<4;i++){
+        rc = fork();
+        //completed[i] = getpid();
+        if(rc==0){
+            completed[i] = getpid();
+            execvp(cmdv[0], cmdv);
         }
         else{
+            completed[i] = rc;
+            usleep(1);
+                    }          
+    }
+
+    int cur_pid;
+       int done = 1;
+        while(done !=0){
+            //printf("came in");
+            cur_pid = waitpid(rc, NULL, WNOHANG);
             clock_gettime(CLOCK_REALTIME, &finish);
             calc_delta(start, finish, &delta);
-            printf("Child: %d finished in: %d.%.9ld\n",rc, (int)delta.tv_sec, delta.tv_nsec);
-        }    
-    }
-    else{
-        printf("Error forking");
-        exit(EXIT_FAILURE);
-    }
-*/
+            if(cur_pid == 0){
+            printf( "\n Still Racing: ");
+            for(int i = 0; i<4;i++){
+                if(completed[i]!=0){
+                printf( "%d \t ",completed[i]);
+                }
+              
+            usleep(200000);
+            
+            }
+            }
+            else if(cur_pid>0){
+            printf("\n slug: %d Race finished in: %d.%.9ld\n",cur_pid, (int)delta.tv_sec, delta.tv_nsec);
+                for(int i =0;i<child_amt;i++){
+                    if(completed[i] = cur_pid){
+                        completed[i]=0;
+                    }
+                }
+            }
+                done = 0;
+                for(int i =0;i<child_amt;i++){
+                    if(completed[i] > done){
+                        done = completed[i];
+                    }
+                }
+                
+            }
+            exit(0);
+}
