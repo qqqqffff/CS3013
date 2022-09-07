@@ -22,65 +22,59 @@ void calc_delta(struct timespec t1, struct timespec t2, struct timespec *td){
 int main(){
     int completed[] = {0, 0, 0, 0};
     struct timespec start, finish, delta;
-   
     int child_amt = 4;
     
-     char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
-                sprintf(slugnumb, "%d", child_amt);
-                char **cmdv;
-                cmdv = calloc(3, sizeof(char *));
-                cmdv[0] = "./slug";
-                cmdv[1] = slugnumb;
-                cmdv[2] = NULL;
+    
+    char **cmdv;
+    cmdv = calloc(3, sizeof(char *));
+    cmdv[0] = "./slug";
+    cmdv[2] = NULL;
     int rc;
-clock_gettime(CLOCK_REALTIME, &start);
+    clock_gettime(CLOCK_REALTIME, &start);
     printf("[Parent]: Starting the race\n");
-    for(int i=0;i<4;i++){
+    for(int i = 0; i < 4; i++){
         rc = fork();
-        //completed[i] = getpid();
         if(rc==0){
             completed[i] = getpid();
+            char *slugnumb = malloc(sizeof(char) * (int)log10(child_amt));
+            sprintf(slugnumb, "%d", i+1);
+            cmdv[1] = slugnumb;
             execvp(cmdv[0], cmdv);
         }
         else{
             completed[i] = rc;
             usleep(1);
-                    }          
+        }          
     }
-
     int cur_pid;
-       int done = 1;
-        while(done !=0){
-            //printf("came in");
-            cur_pid = waitpid(rc, NULL, WNOHANG);
-            clock_gettime(CLOCK_REALTIME, &finish);
-            calc_delta(start, finish, &delta);
-            if(cur_pid == 0){
-            printf( "\n Still Racing: ");
-            for(int i = 0; i<4;i++){
-                if(completed[i]!=0){
-                printf( "%d \t ",completed[i]);
+    int done = 1;
+    while(done !=0){
+        cur_pid = waitpid(rc, NULL, WNOHANG);
+        clock_gettime(CLOCK_REALTIME, &finish);
+        calc_delta(start, finish, &delta);
+        if(cur_pid == 0){
+            printf( "\n[Parent]: T=%d.%.9ld: ", (int)delta.tv_sec, delta.tv_nsec);
+            for(int i = 0; i < 4; i++){
+                if(completed[i] != 0){
+                    printf( "%d \t ", completed[i]);
                 }
-              
-            usleep(200000);
-            
+                usleep(200000);
             }
-            }
-            else if(cur_pid>0){
-            printf("\n Slug: %d Finished Race In: %d.%.9ld\n",cur_pid, (int)delta.tv_sec, delta.tv_nsec);
-                for(int i =0;i<4;i++){
-                    if(completed[i] = cur_pid){
-                        completed[i]=0;
-                    }
+        }
+        else if(cur_pid > 0){
+            printf("\n[Parent] Finished Race In: %d.%.9ld\n", (int)delta.tv_sec, delta.tv_nsec);
+            for(int i = 0; i < 4; i++){
+                if(completed[i] = cur_pid){
+                    completed[i] = 0;
                 }
             }
-                done = 0;
-                for(int i =0;i<4;i++){
-                    if(completed[i] > done){
-                        done = completed[i];
-                    }
-                }
-                
+        }
+        done = 0;
+        for(int i = 0; i < 4; i++){
+            if(completed[i] > done){
+                done = completed[i];
             }
-            exit(0);
+        }    
+    }
+    exit(0);
 }
