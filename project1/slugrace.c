@@ -67,15 +67,15 @@ clock_gettime(CLOCK_REALTIME, &start);
             }
             }
             else if(cur_pid>0){
-            printf("\n slug: %d Race finished in: %d.%.9ld\n",cur_pid, (int)delta.tv_sec, delta.tv_nsec);
-                for(int i =0;i<child_amt;i++){
+            printf("\n Slug: %d Finished Race In: %d.%.9ld\n",cur_pid, (int)delta.tv_sec, delta.tv_nsec);
+                for(int i =0;i<4;i++){
                     if(completed[i] = cur_pid){
                         completed[i]=0;
                     }
                 }
             }
                 done = 0;
-                for(int i =0;i<child_amt;i++){
+                for(int i =0;i<4;i++){
                     if(completed[i] > done){
                         done = completed[i];
                     }
