@@ -5,3 +5,5 @@
 /project1/slug
 /project1/slugrace
 /.vscode
+/project2/*.dSYM
+/project2/omnisportscomplex
