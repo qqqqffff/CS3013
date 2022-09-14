@@ -392,7 +392,7 @@ int main(){
     printf("[Stadium]: Welcome to the OMNI-SPORTS complex\n");
     printf("[Stadium]: Our field is first come, first SERVE!\n");
 
-    // sem_init(&athlete_gen_semaphore, 0, 1);
+    sem_init(&athlete_semaphore, 0, 1);
     pthread_t* athletes = malloc(124 * sizeof(pthread_t));
     pthread_t sports_match;
     int counter = 0;
@@ -429,6 +429,6 @@ int main(){
     for(int i = 0; i < counter; i++){
         pthread_join(athletes[i], NULL);
     }
-    // sem_destroy(&athlete_gen_semaphore);
+    sem_destroy(&athlete_semaphore);
     exit(0);
 }
