@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <math.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <semaphore.h>
 #include <string.h>
@@ -48,7 +46,6 @@ int ready_players_while_waiting = 0;
 int blocked_players_while_waiting = 0;
 
 sem_t athlete_semaphore;
-sem_t game_semaphore;
 
 int prev_contained(int sport){
     for(int i = 0; i < 2; i++){
@@ -186,7 +183,6 @@ void *generateAthlete(void* arg){
     }
     sem_post(&athlete_semaphore);
 
-    //TODO: wait until called and active sport
     while(1){
         //waiting for their team
         sem_wait(&athlete_semaphore);
@@ -293,6 +289,7 @@ void *simulateBaseballGame(void* args){
         teamA_ids[i] = baseball_player_ids[location];
         pthread_cond_signal(&baseball_player_cond[teamA_ids[i] - 2001]);
         printf("[Baseball]: Player #%d has joined team A!\n", teamA_ids[i]);
+        usleep(500000);
 
         location = rand() % ready_baseball_players;
         for(int k = 0; k <= i; k++){
@@ -310,7 +307,7 @@ void *simulateBaseballGame(void* args){
         pthread_cond_signal(&baseball_player_cond[teamB_ids[i] - 2001]);
         
         printf("[Baseball]: Player #%d has joined team B!\n", teamB_ids[i]);
-        usleep(50000); //between team asignments .05 seconds
+        usleep(500000); //between team asignments .05 seconds
     }
     sem_post(&athlete_semaphore);
     sleep(1);
@@ -467,51 +464,169 @@ void *simulateSoccerGame(void* args){
 
     sem_wait(&athlete_semaphore);
     active_ids = malloc(MAX_SOCCER_TEAM_COUNT * 2  * sizeof(int));
+    sem_post(&athlete_semaphore);
+
     printf("[Soccer]: Total number of players to choose from: %d\n", ready_soccer_players);
     int j = 0;
     int type = 0;
     int soccer_players_pool = ready_soccer_players;
+    // if there are less than the max amount of players loop through the amount of players generated until the cap is reached
+    // cap = 22
     if((soccer_players_pool < (MAX_SOCCER_TEAM_COUNT * 2))){
-        if(((soccer_players_pool % 2) != 0)){
-            soccer_players_pool--;
-        }
-        for(int i = 0; i < (soccer_players_pool / 2); i++){
-            int location = rand() % ready_soccer_players;
-            for(int k = 0; k <= i; k++){
-                if(teamA_ids[k] == soccer_player_ids[location] || teamB_ids[k] == soccer_player_ids[location]){
-                    location = rand() % ready_soccer_players;
-                    k = 0;
-                }
+        int soccer_players_cap = MAX_SOCCER_TEAM_COUNT * 2;
+        int *selected_ids = malloc(MAX_SOCCER_TEAM_COUNT * 2 * sizeof(int));
+        int selected_players_location = 0;
+        while(soccer_players_cap > 0) {
+            if (((soccer_players_pool % 2) != 0)) {
+                soccer_players_pool--;
             }
-            
-            sem_wait(&athlete_semaphore);
-            active_ids[j] = soccer_player_ids[location] + 10000; j++;
-            sem_post(&athlete_semaphore);
-            
-            teamA_ids[i] = soccer_player_ids[location];
-            pthread_cond_signal(&soccer_player_cond[teamA_ids[i] - 1001]);
-            printf("[Soccer]: Player #%d has joined team A!\n", teamA_ids[i]);
-            usleep(50000);
+            if(soccer_players_pool > soccer_players_cap){
+                printf("[Soccer]: Amount of ready players exceeds the cap! Auto Adjusting pool!\n");
+                soccer_players_pool = soccer_players_cap;
+            }
+            soccer_players_cap -= soccer_players_pool;
 
-            location = rand() % ready_soccer_players;
-            for(int k = 0; k <= i; k++){
-                if(teamB_ids[k] == soccer_player_ids[location] || teamA_ids[k] == soccer_player_ids[location]){
-                    location = rand() % ready_soccer_players;
-                    k = 0;
+            printf("\n[Soccer]: Available pool for game of players: %d!\n", soccer_players_pool);
+            for (int i = 0; i < (soccer_players_pool / 2); i++) {
+                int location = rand() % ready_soccer_players;
+                printf("[Soccer]: Attempting to draft player #%d to Team A\n", soccer_player_ids[location]);
+
+                int n = 0; int err = 0;
+                for (int k = 0; k < MAX_SOCCER_TEAM_COUNT; k++) {
+                    if (teamA_ids[k] == soccer_player_ids[location] ||
+                        teamB_ids[k] == soccer_player_ids[location] ||
+                        ((selected_ids[n] == soccer_player_ids[location]) && (selected_ids[n] != 0)) ||
+                        ((selected_ids[n + 1] == soccer_player_ids[location]) && (selected_ids[n + 1] != 0))) {
+                        if(teamA_ids[k] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already been selected to Team A\n", soccer_player_ids[location]);
+                        }
+                        else if(teamB_ids[k] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already been selected to Team B\n", soccer_player_ids[location]);
+                        }
+                        else if(selected_ids[n] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already played\n", soccer_player_ids[location]);
+                        }
+                        else if(selected_ids[n + 1] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already played\n", soccer_player_ids[location]);
+                        }
+                        if(err == 0) {
+                            k = 0; n = 0; err = 1;
+                            location = 0;
+                        }
+                        else if(err == 1){
+                            location++;
+                            k = 0; n = 0;
+                        }
+                    }
+                    if(teamA_ids[k] == 0 && teamB_ids[k] == 0
+                    && selected_ids[n] == 0 && selected_ids[n + 1] == 0){
+                        break;
+                    }
+                    n += 2;
                 }
+
+                sem_wait(&athlete_semaphore);
+                active_ids[j] = soccer_player_ids[location] + 10000; j++;
+                selected_ids[selected_players_location] = soccer_player_ids[location]; selected_players_location++;
+                sem_post(&athlete_semaphore);
+
+                teamA_ids[i] = soccer_player_ids[location];
+                pthread_cond_signal(&soccer_player_cond[teamA_ids[i] - 1001]);
+                printf("[Soccer]: Player #%d has joined Team A!\n", teamA_ids[i]);
+                usleep(500000);
+
+                location = rand() % ready_soccer_players;
+                printf("[Soccer]: Attempting to draft player #%d to Team B\n", soccer_player_ids[location]);
+                n = 0;
+                for (int k = 0; k < MAX_SOCCER_TEAM_COUNT; k++) {
+                    if (teamA_ids[k] == soccer_player_ids[location] ||
+                        teamB_ids[k] == soccer_player_ids[location] ||
+                        ((selected_ids[n] == soccer_player_ids[location]) && (selected_ids[n] != 0)) ||
+                        ((selected_ids[n + 1] == soccer_player_ids[location]) && (selected_ids[n + 1] != 0))) {
+                        if(teamA_ids[k] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already been selected to Team A\n", soccer_player_ids[location]);
+                        }
+                        else if(teamB_ids[k] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already been selected to Team B\n", soccer_player_ids[location]);
+                        }
+                        else if(selected_ids[n] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already played\n", soccer_player_ids[location]);
+                        }
+                        else if(selected_ids[n + 1] == soccer_player_ids[location] && err == 0){
+                            printf("[Soccer]: Player #%d has already played\n", soccer_player_ids[location]);
+                        }
+                        if(err == 0) {
+                            k = 0; n = 0; err = 1;
+                            location = 0;
+                        }
+                        else if(err == 1){
+                            location++;
+                            k = 0; n = 0;
+                        }
+                    }
+                    if(teamA_ids[k] == 0 && teamB_ids[k] == 0
+                       && selected_ids[n] == 0 && selected_ids[n + 1] == 0){
+                        break;
+                    }
+                    n += 2;
+                }
+                sem_wait(&athlete_semaphore);
+                active_ids[j] = soccer_player_ids[location] + 20000;
+                selected_ids[selected_players_location] = soccer_player_ids[location]; selected_players_location++;
+                sem_post(&athlete_semaphore);
+
+                teamB_ids[i] = soccer_player_ids[location];
+                pthread_cond_signal(&soccer_player_cond[teamB_ids[i] - 1001]);
+
+                printf("[Soccer]: Player #%d has joined team B!\n", teamB_ids[i]);
+                usleep(500000); //between player asignments 1 seconds
             }
-            sem_wait(&athlete_semaphore);
-            active_ids[j] = soccer_player_ids[location] + 20000; j++;
-            sem_post(&athlete_semaphore);
-            
-            teamB_ids[i] = soccer_player_ids[location];
-            pthread_cond_signal(&soccer_player_cond[teamB_ids[i] - 1001]);
-            
-            printf("[Soccer]: Player #%d has joined team B!\n", teamB_ids[i]);
-            usleep(50000); //between player asignments .05 seconds
+
+            sleep(1);
+            int playtime = rand() % 5 + 2;
+            printf("[Soccer]: Playtime will be %d0 minutes!\n\n", playtime);
+            sleep(playtime);
+
+            int teamAscore = rand() % 4;
+            int teamBscore = rand() % 4;
+
+            if(teamAscore > teamBscore){
+                printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "A");
+            }
+            else if(teamBscore > teamAscore){
+                printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "B");
+            }
+            else if(teamAscore == teamBscore){
+                printf("[Soccer]: With a score of %d to %d, There has been a tie. Booooo!\n\n", teamAscore, teamBscore);
+            }
+            sleep(1);
+
+            for(int i = 0; i < (soccer_players_pool / 2); i++){
+                //unpause players from both teams
+                printf("[Soccer]: Thank you Player #%d from Team A, and Player #%d from Team B for playing!\n", teamA_ids[i], teamB_ids[i]);
+                usleep(50000); //buffer time .05 seconds
+                pthread_cond_signal(&soccer_player_cond[teamA_ids[i] - 1001]);
+                usleep(50000);
+                pthread_cond_signal(&soccer_player_cond[teamB_ids[i] - 1001]);
+                usleep(100000);
+            }
+            free(teamA_ids); free(teamB_ids);
+            teamA_ids = malloc(MAX_SOCCER_TEAM_COUNT * sizeof(int));
+            teamB_ids = malloc(MAX_SOCCER_TEAM_COUNT * sizeof(int));
+//            sem_wait(&athlete_semaphore);
+//            free(active_ids);
+//            active_ids = malloc(MAX_SOCCER_TEAM_COUNT * 2 * sizeof(int));
+//            sem_post(&athlete_semaphore);
+
+            soccer_players_pool = ready_soccer_players;
+
+            printf("\n[Soccer]: Remaining players able to join: %d!\n", soccer_players_cap);
         }
     }
     else if((soccer_players_pool >= (MAX_SOCCER_TEAM_COUNT * 2))){
+        sem_wait(&athlete_semaphore);
+        active_ids = malloc(MAX_SOCCER_TEAM_COUNT * 2  * sizeof(int));
+        sem_post(&athlete_semaphore);
         type = 1;
         for(int i = 0; i < MAX_SOCCER_TEAM_COUNT; i++){
             int location = rand() % ready_soccer_players;
@@ -548,44 +663,34 @@ void *simulateSoccerGame(void* args){
             printf("[Soccer]: Player #%d has joined team B!\n", teamB_ids[i]);
             usleep(50000); //between player asignments .05 seconds
         }
-    }
-    sem_post(&athlete_semaphore);
-    sleep(1);
-    int playtime = rand() % 5 + 2;
-    printf("[Soccer]: Playtime will be %d0 minutes!\n\n", playtime);
-    
-    sleep(playtime);
-    //batting team A = 0, B = 1
-    int teamAscore = rand() % 4;
-    int teamBscore = rand() % 4;
+
+        sleep(1);
+        int playtime = rand() % 5 + 2;
+        printf("[Soccer]: Playtime will be %d0 minutes!\n\n", playtime);
+        sleep(playtime);
+
+        //batting team A = 0, B = 1
+        int teamAscore = rand() % 4;
+        int teamBscore = rand() % 4;
 
 
-    if(teamAscore > teamBscore){
-        printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "A");
+        if(teamAscore > teamBscore){
+            printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "A");
+        }
+        else if(teamBscore > teamAscore){
+            printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "B");
+        }
+        else if(teamAscore == teamBscore){
+            printf("[Soccer]: With a score of %d to %d, There has been a tie. Booooo!\n\n", teamAscore, teamBscore);
+        }
+        sleep(1); //buffer 1 second
     }
-    else if(teamBscore > teamAscore){
-        printf("[Soccer]: With a score of %d to %d, Team %s is VICTORIOUS!\n\n", teamAscore, teamBscore, "B");
-    }
-    else if(teamAscore == teamBscore){
-        printf("[Soccer]: With a score of %d to %d, There has been a tie. Booooo!\n\n", teamAscore, teamBscore);
-    }
-    sleep(1); //buffer 1 second
 
     //cleaning up players and data
-    sem_wait(&athlete_semaphore);
-    free(active_ids);
-    if(type == 0){
-        for(int i = 0; i < (soccer_players_pool / 2); i++){
-            //unpause players from both teams
-            printf("[Soccer]: Thank you Player #%d from Team A, and Player #%d from Team B for playing!\n", teamA_ids[i], teamB_ids[i]);
-            usleep(50000); //buffer time .05 seconds
-            pthread_cond_signal(&soccer_player_cond[teamA_ids[i] - 1001]);
-            usleep(50000);
-            pthread_cond_signal(&soccer_player_cond[teamB_ids[i] - 1001]);
-            usleep(100000);
-        }
-    }
-    else if(type == 1){
+    if(type == 1){
+        sem_wait(&athlete_semaphore);
+        free(active_ids);
+        sem_post(&athlete_semaphore);
         for(int i = 0; i < MAX_SOCCER_TEAM_COUNT; i++){
             //unpause players from both teams
             printf("[Soccer]: Thank you Player #%d from Team A, and Player #%d from Team B for playing!\n", teamA_ids[i], teamB_ids[i]);
@@ -595,11 +700,12 @@ void *simulateSoccerGame(void* args){
             pthread_cond_signal(&soccer_player_cond[teamB_ids[i] - 1001]);
             usleep(100000);
         }
+        free(teamA_ids); free(teamB_ids);
     }
-    free(teamA_ids); free(teamB_ids);
+    sem_wait(&athlete_semaphore);
     active_sport_completed = 1;
     sem_post(&athlete_semaphore);
-    printf("[Stadium]: The Soccer Match is FINISHED! On to the next match\n\n");
+    printf("\n[Stadium]: The Soccer Match(es) is FINISHED! On to the next match\n\n");
     return NULL;
 }
 void *simulateFootballGame(void* args){
@@ -631,6 +737,7 @@ void *simulateFootballGame(void* args){
         teamA_ids[i] = football_player_ids[location];
         pthread_cond_signal(&football_player_cond[teamA_ids[i] - 3001]);
         printf("[Football]: Player #%d has joined team A!\n", teamA_ids[i]);
+        usleep(500000);
 
         location = rand() % ready_football_players;
         for(int k = 0; k <= i; k++){
@@ -648,7 +755,7 @@ void *simulateFootballGame(void* args){
         pthread_cond_signal(&football_player_cond[teamB_ids[i] - 3001]);
         
         printf("[Football]: Player #%d has joined team B!\n", teamB_ids[i]);
-        usleep(50000); //between team asignments .05 seconds
+        usleep(500000); //between team asignments .05 seconds
     }
     sem_post(&athlete_semaphore);
     sleep(1);
@@ -854,15 +961,15 @@ int main(){
     printf("[Stadium]: Welcome to the OMNI-SPORTS complex\n");
     printf("[Stadium]: Our field is first come, first SERVE!\n");
 
-    // sem_init(&athlete_semaphore, 0, 1);
+    sem_init(&athlete_semaphore, 0, 1);
 
     pthread_t* athletes = malloc(124 * sizeof(pthread_t));
     pthread_t sports_match;
     int counter = 0;
 
     int number_o_matches = 0;
-    int max_number_o_matches = 4;
-    printf("[Stadium]: We will host a total of %d different sports matches today!", max_number_o_matches);
+    int max_number_o_matches = 1;
+    printf("[Stadium]: We will host a total of %d different sports matches today!\n", max_number_o_matches);
     //insert a while true when done testing
     while(number_o_matches < max_number_o_matches){
         //player generation
@@ -892,35 +999,35 @@ int main(){
             }
         }
         //Start football simulation
-        if((ready_football_players > (MAX_FOOTBALL_TEAM_COUNT * 2)) && (prev_contained(3) == 0) && (active_sport == 0) && (active_sport_completed == 0)){
-            sem_wait(&athlete_semaphore);
-            active_sport = 1;
-            active_sport_val = "FOOTBALL";
-            previous_field[prev_field] = 3;
-            prev_field++;
-            if(prev_field > 1){
-                prev_field = 0;
-            }
-            sem_post(&athlete_semaphore);
-            printf("\n\n[Stadium]: Ready for a game of FOOTBALL?, Field Configuration: %s\n", active_sport_val);
-            printf("[Stadium]: Make sure that there are no BASEBALL players or SOCCER players on the field\n");
-            pthread_create(&sports_match, NULL, simulateFootballGame, NULL);
-        }
+         if((ready_football_players > (MAX_FOOTBALL_TEAM_COUNT * 2)) && (prev_contained(3) == 0) && (active_sport == 0) && (active_sport_completed == 0)){
+             sem_wait(&athlete_semaphore);
+             active_sport = 1;
+             active_sport_val = "FOOTBALL";
+             previous_field[prev_field] = 3;
+             prev_field++;
+             if(prev_field > 1){
+                 prev_field = 0;
+             }
+             sem_post(&athlete_semaphore);
+             printf("\n\n[Stadium]: Ready for a game of FOOTBALL?, Field Configuration: %s\n", active_sport_val);
+             printf("[Stadium]: Make sure that there are no BASEBALL players or SOCCER players on the field\n");
+             pthread_create(&sports_match, NULL, simulateFootballGame, NULL);
+         }
         //start baseball simulation
-        if((ready_baseball_players > (MAX_BASEBALL_TEAM_COUNT * 2)) && (prev_contained(2) == 0) && (active_sport == 0) && (active_sport_completed == 0)){
-            sem_wait(&athlete_semaphore);
-            active_sport = 1;
-            active_sport_val = "BASEBALL";
-            previous_field[prev_field] = 2;
-            prev_field++;
-            if(prev_field > 1){
-                prev_field = 0;
-            }
-            sem_post(&athlete_semaphore);
-            printf("\n\n[Stadium]: Ready for a game of BALL?, Field Configuration: %s\n", active_sport_val);
-            printf("[Stadium]: Make sure that there are no SOCCER players or FOOTBALL players on the field\n");
-            pthread_create(&sports_match, NULL, simulateBaseballGame, NULL);
-        }
+         if((ready_baseball_players > (MAX_BASEBALL_TEAM_COUNT * 2)) && (prev_contained(2) == 0) && (active_sport == 0) && (active_sport_completed == 0)){
+             sem_wait(&athlete_semaphore);
+             active_sport = 1;
+             active_sport_val = "BASEBALL";
+             previous_field[prev_field] = 2;
+             prev_field++;
+             if(prev_field > 1){
+                 prev_field = 0;
+             }
+             sem_post(&athlete_semaphore);
+             printf("\n\n[Stadium]: Ready for a game of BALL?, Field Configuration: %s\n", active_sport_val);
+             printf("[Stadium]: Make sure that there are no SOCCER players or FOOTBALL players on the field\n");
+             pthread_create(&sports_match, NULL, simulateBaseballGame, NULL);
+         }
         //start soccer simulation
         else if((ready_soccer_players > MIN_SOCCER_TEAM_COUNT) && (prev_contained(1) == 0) && (active_sport == 0) && (active_sport_completed == 0)){
             sem_wait(&athlete_semaphore);
@@ -936,13 +1043,13 @@ int main(){
             printf("[Stadium]: Make sure that there are no BASEBALL players or FOOTBALL players on the field\n");
             pthread_create(&sports_match, NULL, simulateSoccerGame, NULL);
         }
-        usleep(75000); // .075 tick speed
+        usleep(75000); // .075 while true tick speed
     }
 
 
     for(int i = 0; i < counter; i++){
         printf("%d\n", pthread_join(athletes[i], NULL));
     }
-    // sem_destroy(&athlete_semaphore);
+    sem_destroy(&athlete_semaphoreemaphore);
     exit(0);
 }
