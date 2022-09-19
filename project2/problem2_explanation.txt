@@ -1,0 +1,13 @@
+Scenario 2:
+
+1) While the plane is at the terminal (maximum of 6 slots at the terminal) the thread sleeps
+for a randomized amount of time
+2) Before takeoff the plane taxis to the intended takeoff location taking a random amount of
+time. If all the takeoff paths are taken then the plane will enter a waiting queue with priority
+given to the takeoff planes and then to the landing planes
+3) While taking off the plane sleeps a random amount of time to simulate the takeoff speed and updates
+positions and notifies the planes that are waiting in queue
+4) The plane will fly around for a random amount of time before attempting to landing
+5) The plane will attempt to land but if no spots are available they will enter a landing queue
+6) Landing speed is randomized to simulate the time it takes to land and then the smiulation will exit and
+planes return to the airport to be taxied and unboarded both in randomized amounts of time.

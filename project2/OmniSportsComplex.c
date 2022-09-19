@@ -968,7 +968,7 @@ int main(){
     int counter = 0;
 
     int number_o_matches = 0;
-    int max_number_o_matches = 1;
+    int max_number_o_matches = 4;
     printf("[Stadium]: We will host a total of %d different sports matches today!\n", max_number_o_matches);
     //insert a while true when done testing
     while(number_o_matches < max_number_o_matches){
@@ -1050,6 +1050,6 @@ int main(){
     for(int i = 0; i < counter; i++){
         printf("%d\n", pthread_join(athletes[i], NULL));
     }
-    sem_destroy(&athlete_semaphoreemaphore);
+    sem_destroy(&athlete_semaphore);
     exit(0);
 }

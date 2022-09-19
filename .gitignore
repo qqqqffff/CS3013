@@ -6,5 +6,9 @@
 /project1/slug
 /project1/slugrace
 /.vscode
+
 /project2/*.dSYM
 /project2/omnisportscomplex
+/project2/flightsimulator
+/.DS_Store
+/.idea
