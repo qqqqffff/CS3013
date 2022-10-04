@@ -1,0 +1,48 @@
+Script started on Mon Oct  3 00:06:54 2022
+/dev/fd/13:18: command not found: compdef
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hexit./memorymanager[15Dgradle clean   [12D./memorymanager[?2004l
+[Memory Manager] Read Instruction: 0,map,0,0
+Put page table for PID 0 into physical frame 0
+Mapped virtual address 0 (page 0) into physical frame 1
+[Memory Manager] Read Instruction: 0,store,7,255
+Error: writes are not allowed to this page
+[Memory Manager] Read Instruction: 0,map,0,1
+Updating permision for virtual page 0 (frame 1)
+[Memory Manager] Read Instruction: 0,store,7,255
+Stored value 255 at virtual address 7 (physical address 23)
+[Memory Manager] Read Instruction: 0,load,7,0
+The value 255 is at virtual address 7 (physical address 23)
+[Memory Manager] Read Instruction: 0,map,10,1
+Error: virtual page 0 is already mapped with rw_bit=1
+[Memory Manager] Read Instruction: 0,map,16,1
+Mapped virtual address 16 (page 1) into physical frame 2
+[Memory Manager] Read Instruction: 0,map,32,1
+Mapped virtual address 32 (page 2) into physical frame 3
+[Memory Manager] Read Instruction: 1,map,0,0
+Swapped frame 0 to disk at swap slot 0
+Put page table for PID 1 into physical frame 0
+Swapped frame 1 to disk at swap slot 1
+Mapped virtual address 0 (page 0) into physical frame 1
+[Memory Manager] Read Instruction: 0,load,7,0
+Swapped frame 2 to disk at swap slot 2
+The value 255 is at virtual address 7 (physical address 55)
+
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit status[?2004l
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	[31mmodified:   MemoryManager.c[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	[31m../project2/.DS_Store[m
+	[31mREADME.txt[m
+	[31minstruction_set.bin[m
+	[31mtypescript.txt[m
+	[31m../project4/[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004h
