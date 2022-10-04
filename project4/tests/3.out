@@ -1,0 +1,13 @@
+Execution trace with FIFO:
+Job 0 ran for: 20
+Job 1 ran for: 19
+Job 2 ran for: 18
+Job 3 ran for: 17
+Job 4 ran for: 16
+Job 5 ran for: 15
+Job 6 ran for: 14
+Job 7 ran for: 13
+Job 8 ran for: 12
+Job 9 ran for: 11
+Job 10 ran for: 10
+End of execution with FIFO.

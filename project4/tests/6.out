@@ -1,0 +1,22 @@
+Execution trace with SJF:
+Job 2 ran for: 1
+Job 13 ran for: 2
+Job 14 ran for: 4
+Job 4 ran for: 5
+Job 12 ran for: 5
+Job 1 ran for: 6
+Job 5 ran for: 6
+Job 6 ran for: 8
+Job 9 ran for: 10
+Job 0 ran for: 11
+Job 16 ran for: 12
+Job 7 ran for: 13
+Job 3 ran for: 14
+Job 19 ran for: 14
+Job 15 ran for: 17
+Job 17 ran for: 19
+Job 8 ran for: 20
+Job 10 ran for: 20
+Job 11 ran for: 20
+Job 18 ran for: 20
+End of execution with SJF.
