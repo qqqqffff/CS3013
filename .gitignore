@@ -16,3 +16,6 @@
 
 /project3/*dSYM
 /project3/memorymanager
+
+/project4/*dSYM
+/project4/scheduler
