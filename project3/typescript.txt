@@ -45,4 +45,24 @@ Untracked files:
 	[31m../project4/[m
 
 no changes added to commit (use "git add" and/or "git commit -a")
-[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004h
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit dad    g  ggit add README.txt[1m [0m[0m [?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit add instruction_set.bin[1m [0m[0m [?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit add typescript.txt[1m [0m[0m [?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit comit =   mit =-  -m '  "project 3 completion"[?2004l
+[main cbe6efd] project 3 completion
+ 3 files changed, 68 insertions(+)
+ create mode 100644 project3/README.txt
+ create mode 100644 project3/instruction_set.bin
+ create mode 100644 project3/typescript.txt
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hggit push[?2004l
+Enter passphrase for key '/Users/apollo/.ssh/id_ed25519': 
+Enumerating objects: 8, done.
+Counting objects:  12% (1/8)Counting objects:  25% (2/8)Counting objects:  37% (3/8)Counting objects:  50% (4/8)Counting objects:  62% (5/8)Counting objects:  75% (6/8)Counting objects:  87% (7/8)Counting objects: 100% (8/8)Counting objects: 100% (8/8), done.
+Delta compression using up to 12 threads
+Compressing objects:  16% (1/6)Compressing objects:  33% (2/6)Compressing objects:  50% (3/6)Compressing objects:  66% (4/6)Compressing objects:  83% (5/6)Compressing objects: 100% (6/6)Compressing objects: 100% (6/6), done.
+Writing objects:  16% (1/6)Writing objects:  33% (2/6)Writing objects:  50% (3/6)Writing objects:  66% (4/6)Writing objects:  83% (5/6)Writing objects: 100% (6/6)Writing objects: 100% (6/6), 1.57 KiB | 1.57 MiB/s, done.
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/1)[Kremote: Resolving deltas: 100% (1/1)[Kremote: Resolving deltas: 100% (1/1), completed with 1 local object.[K
+To github.com:qqqqffff/CS3013.git
+   aa372b0..cbe6efd  main -> main
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                                     [0m[27m[24m[Japollo@apollo project3 % [K[?2004hgit pushcommit -m "project 3 completion"[32Dpush                            [28D[8D        [8Dggit add memorymanager
