@@ -6,7 +6,12 @@
 struct job {
     int id;
     int length;
-    struct job *next;
+    int response;
+    int turnaround;
+    int wait;
+    int runtime;
+    int complete;
+    int updated;
 };
 
 enum scheduler_algorithm_type {FIFO, SJF, RR};
@@ -78,28 +83,102 @@ int main(int argc, char **argv){
     }
     else if(alg == RR){
         int rr_time = atoi(argv[3]);
-        int completed = 0; int debug_counter = 0;
-        while(!completed && debug_counter < 4){
+        if(rr_time <= 0){
+            printf("Error: Invlaid Time Argument\n");
+            exit(EXIT_FAILURE);
+        }
+        int completed = 0; int cycle = 0;
+        //initializing the jobs
+        for(int i = 0; i < numb_jobs; i++){
+            job_stack[i].complete = 0;
+            job_stack[i].wait = 0;
+            job_stack[i].turnaround = 0;
+        }
+        while(!completed && cycle < 4){
             completed = 1;
             for(int i = 0; i < numb_jobs; i++){
-                int runtime = 0;
+                //algorithm implementation
+                job_stack[i].updated = 0;
                 if(job_stack[i].length > rr_time){
-                    runtime = rr_time;
+                    job_stack[i].runtime = rr_time;
                     job_stack[i].length -= rr_time;
-                    printf("Job %d ran for: %d\n", job_stack[i].id, runtime);
+                    job_stack[i].updated = 1;
+                    printf("Job %d ran for: %d\t", job_stack[i].id, job_stack[i].runtime);
                 }
                 else if(job_stack[i].length <= rr_time && job_stack[i].length != 0){
-                    runtime = job_stack[i].length;
-                    job_stack[i].length -= runtime;
-                    printf("Job %d ran for: %d\n", job_stack[i].id, runtime);
+                    job_stack[i].runtime = job_stack[i].length;
+                    job_stack[i].length -= job_stack[i].runtime;
+                    job_stack[i].updated = 1;
+                    printf("Job %d ran for: %d\t", job_stack[i].id, job_stack[i].runtime);
                 }
                 
+                //analysis calculations
+                //response time calculation
+                if(cycle == 0 && i == 0){
+                    job_stack[i].response = 0;
+                }
+                else if(cycle == 0 && i != 0){
+                    job_stack[i].response = job_stack[i - 1].response + job_stack[i - 1].runtime;
+                }
+
+                //turnaround time calculation
+                if(i == 0 && cycle == 0){
+                    job_stack[i].turnaround = job_stack[i].runtime;
+                    printf("\n");
+                }
+                else if(i == 0 && !job_stack[i].complete){
+                    job_stack[i].turnaround = job_stack[numb_jobs].turnaround;
+                }
+                if(i != 0 && !job_stack[i].complete){
+                    //this represents the current job runtime of tasks that arent at the top of the stack
+                    for(int j = i - 1; j >= 0; j--){
+                        if(job_stack[j].updated){
+                            printf("last job: %d\n", j);
+                            break;
+                        }
+                    }
+                }
+                if(job_stack[i].length == 0){
+                    job_stack[i].complete = 1;
+                }
+                // printf("curr turnaround: %d\n", job_stack[i].turnaround);
+
+                
+                //wait time calculation
+                if(job_stack[i].complete != 0 && i != 0 && job_stack[i].wait == 0){
+                    job_stack[i].wait = job_stack[i - 1].turnaround;
+                }
+                else if(job_stack[i].complete && i == 0 && job_stack[i].wait == 0 && cycle == 0){
+                    job_stack[i].wait = 0;
+                }
+                else if(job_stack[i].complete && i == 0 && job_stack[i].wait == 0 && cycle > 0){
+                    job_stack[i].wait = job_stack[numb_jobs].turnaround;
+                }
+
+                
+                //breaking the round robin loop
                 if(job_stack[i].length != 0 && completed){
                     completed = 0;
                 }
             }
+            cycle++;
         }
         printf("End of Exicution RR\n");
+        printf("Begin analyzing RR:\n");
+        double avg_response = 0;
+        double avg_turnaround = 0;
+        double avg_wait = 0;
+        for(int i = 0; i < numb_jobs; i++){
+            avg_response += (double) job_stack[i].response;
+            avg_turnaround += (double) job_stack[i].turnaround;
+            avg_wait += (double) job_stack[i].wait;
+            printf("Job %d -- Response Time: %d Turnaround: %d Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+        }
+        avg_response /= numb_jobs;
+        avg_turnaround /= numb_jobs;
+        avg_wait /= numb_jobs;
+        printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
+        printf("End analyzing RR\n");
     }
 
     exit(EXIT_SUCCESS);
