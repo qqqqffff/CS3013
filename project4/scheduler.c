@@ -20,15 +20,15 @@ int exicution_time = 0;
 
 int parseAlgorithm(char *v){
     if(v[0] == 'F' && v[1] == 'I' && v[2] == 'F' && v[3] == 'O'){
-        printf("Exicution trace with FIFO\n");
+        printf("Exicution trace with FIFO:\n");
         return FIFO;
     }
     else if(v[0] == 'S' && v[1] == 'J' && v[2] == 'F'){
-        printf("Exicution trace with SJF\n");
+        printf("Exicution trace with SJF:\n");
         return SJF;
     }
     else if(v[0] == 'R' && v[1] == 'R'){
-        printf("Exicution trace with RR\n");
+        printf("Exicution trace with RR:\n");
         return RR;
     }
     printf("Invalid algorithm type\n");
@@ -79,7 +79,12 @@ int main(int argc, char **argv){
         for(int i = 0; i < numb_jobs; i++){
             printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].length);
         }
-        printf("End of Exicution SJF\n");
+        printf("End of Exicution SJF.\n");
+        printf("Begin analyzing SJF:\n");
+        for(int i = 0; i < numb_jobs; i++){
+            printf("Job %d -- Response Time: %d Turnaround: %d Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+        }
+        printf("End analyzing SJF.\n");
     }
     else if(alg == RR){
         int rr_time = atoi(argv[3]);
@@ -91,7 +96,7 @@ int main(int argc, char **argv){
         //initializing the jobs
         for(int i = 0; i < numb_jobs; i++){
             job_stack[i].complete = 0;
-            job_stack[i].wait = 0;
+            job_stack[i].wait = job_stack[i].length;
             job_stack[i].turnaround = 0;
         }
         while(!completed && cycle < 4){
@@ -103,13 +108,13 @@ int main(int argc, char **argv){
                     job_stack[i].runtime = rr_time;
                     job_stack[i].length -= rr_time;
                     job_stack[i].updated = 1;
-                    printf("Job %d ran for: %d\t", job_stack[i].id, job_stack[i].runtime);
+                    printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
                 }
                 else if(job_stack[i].length <= rr_time && job_stack[i].length != 0){
                     job_stack[i].runtime = job_stack[i].length;
                     job_stack[i].length -= job_stack[i].runtime;
                     job_stack[i].updated = 1;
-                    printf("Job %d ran for: %d\t", job_stack[i].id, job_stack[i].runtime);
+                    printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
                 }
                 
                 //analysis calculations
@@ -124,35 +129,48 @@ int main(int argc, char **argv){
                 //turnaround time calculation
                 if(i == 0 && cycle == 0){
                     job_stack[i].turnaround = job_stack[i].runtime;
-                    printf("\n");
+                    if(job_stack[i].length == 0){
+                        job_stack[i].wait = job_stack[i].turnaround - job_stack[i].wait;
+                    }
                 }
                 else if(i == 0 && !job_stack[i].complete){
-                    job_stack[i].turnaround = job_stack[numb_jobs].turnaround;
+                    int prev_found = 0;
+                    for(int j = numb_jobs; j > 0; j--){
+                        if(job_stack[j].updated && !prev_found){
+                            job_stack[i].turnaround = job_stack[j].turnaround + job_stack[i].runtime;
+                            //wait time calculation
+                            if(job_stack[i].length == 0){
+                                job_stack[i].wait = job_stack[i].turnaround - job_stack[i].wait;
+                            }
+                            prev_found = 1;
+                        }
+                        if(prev_found){
+                            break;
+                        }
+                    }
                 }
                 if(i != 0 && !job_stack[i].complete){
-                    //this represents the current job runtime of tasks that arent at the top of the stack
+                    //get the last ran job's turnaround time
+                    int prev_found = 0;
                     for(int j = i - 1; j >= 0; j--){
-                        if(job_stack[j].updated){
-                            printf("last job: %d\n", j);
+                        if(job_stack[j].updated && !prev_found){
+                            job_stack[i].turnaround = job_stack[j].turnaround + job_stack[i].runtime;
+                            //wait time calculation
+                            if(job_stack[i].length == 0){
+                                job_stack[i].wait = job_stack[i].turnaround - job_stack[i].wait;
+                            }
+                            prev_found = 1;
+                        }
+                        if(j - 1 < 0 && !prev_found){
+                            j = numb_jobs;
+                        }
+                        if(prev_found){
                             break;
                         }
                     }
                 }
                 if(job_stack[i].length == 0){
                     job_stack[i].complete = 1;
-                }
-                // printf("curr turnaround: %d\n", job_stack[i].turnaround);
-
-                
-                //wait time calculation
-                if(job_stack[i].complete != 0 && i != 0 && job_stack[i].wait == 0){
-                    job_stack[i].wait = job_stack[i - 1].turnaround;
-                }
-                else if(job_stack[i].complete && i == 0 && job_stack[i].wait == 0 && cycle == 0){
-                    job_stack[i].wait = 0;
-                }
-                else if(job_stack[i].complete && i == 0 && job_stack[i].wait == 0 && cycle > 0){
-                    job_stack[i].wait = job_stack[numb_jobs].turnaround;
                 }
 
                 
@@ -163,7 +181,7 @@ int main(int argc, char **argv){
             }
             cycle++;
         }
-        printf("End of Exicution RR\n");
+        printf("End of Exicution RR.\n");
         printf("Begin analyzing RR:\n");
         double avg_response = 0;
         double avg_turnaround = 0;
@@ -178,7 +196,7 @@ int main(int argc, char **argv){
         avg_turnaround /= numb_jobs;
         avg_wait /= numb_jobs;
         printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
-        printf("End analyzing RR\n");
+        printf("End analyzing RR.\n");
     }
 
     exit(EXIT_SUCCESS);
