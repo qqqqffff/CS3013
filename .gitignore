@@ -13,6 +13,7 @@
 /.DS_Store
 /.idea
 /project2/typescript.txt
+/project2/.DS_Store
 
 /project3/*dSYM
 /project3/memorymanager
