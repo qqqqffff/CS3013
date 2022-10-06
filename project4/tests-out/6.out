@@ -1,0 +1,23 @@
+Begin analyzing SJF:
+Job 2 -- Response Time: 0 Turnaround: 1 Wait: 0
+Job 13 -- Response Time: 1 Turnaround: 3 Wait: 1
+Job 14 -- Response Time: 3 Turnaround: 7 Wait: 3
+Job 12 -- Response Time: 7 Turnaround: 12 Wait: 7
+Job 4 -- Response Time: 12 Turnaround: 17 Wait: 12
+Job 5 -- Response Time: 17 Turnaround: 23 Wait: 17
+Job 1 -- Response Time: 23 Turnaround: 29 Wait: 23
+Job 6 -- Response Time: 29 Turnaround: 37 Wait: 29
+Job 9 -- Response Time: 37 Turnaround: 47 Wait: 37
+Job 0 -- Response Time: 47 Turnaround: 58 Wait: 47
+Job 16 -- Response Time: 58 Turnaround: 70 Wait: 58
+Job 7 -- Response Time: 70 Turnaround: 83 Wait: 70
+Job 19 -- Response Time: 83 Turnaround: 97 Wait: 83
+Job 3 -- Response Time: 97 Turnaround: 111 Wait: 97
+Job 15 -- Response Time: 111 Turnaround: 128 Wait: 111
+Job 17 -- Response Time: 128 Turnaround: 147 Wait: 128
+Job 18 -- Response Time: 147 Turnaround: 167 Wait: 147
+Job 11 -- Response Time: 167 Turnaround: 187 Wait: 167
+Job 10 -- Response Time: 187 Turnaround: 207 Wait: 187
+Job 8 -- Response Time: 207 Turnaround: 227 Wait: 207
+Average -- Response Time: 71.55 Turnaround: 82.90 Wait: 71.55
+End analyzing SJF.

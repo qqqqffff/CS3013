@@ -1,0 +1,18 @@
+Begin analyzing RR:
+Job 0 -- Response time: 0  Turnaround: 1  Wait: 0
+Job 1 -- Response time: 1  Turnaround: 6  Wait: 1
+Job 2 -- Response time: 6  Turnaround: 92  Wait: 77
+Job 3 -- Response time: 11  Turnaround: 14  Wait: 11
+Job 4 -- Response time: 14  Turnaround: 105  Wait: 87
+Job 5 -- Response time: 19  Turnaround: 70  Wait: 64
+Job 6 -- Response time: 24  Turnaround: 25  Wait: 24
+Job 7 -- Response time: 25  Turnaround: 74  Wait: 65
+Job 8 -- Response time: 30  Turnaround: 34  Wait: 30
+Job 9 -- Response time: 34  Turnaround: 35  Wait: 34
+Job 10 -- Response time: 35  Turnaround: 75  Wait: 69
+Job 11 -- Response time: 40  Turnaround: 80  Wait: 70
+Job 12 -- Response time: 45  Turnaround: 49  Wait: 45
+Job 13 -- Response time: 49  Turnaround: 108  Wait: 90
+Job 14 -- Response time: 54  Turnaround: 87  Wait: 80
+Average -- Response: 25.80  Turnaround: 57.00  Wait: 49.80
+End analyzing RR.

@@ -1,0 +1,23 @@
+Begin analyzing FIFO:
+Job 0 -- Response time: 0  Turnaround: 17  Wait: 0
+Job 1 -- Response time: 17  Turnaround: 33  Wait: 17
+Job 2 -- Response time: 33  Turnaround: 42  Wait: 33
+Job 3 -- Response time: 42  Turnaround: 48  Wait: 42
+Job 4 -- Response time: 48  Turnaround: 59  Wait: 48
+Job 5 -- Response time: 59  Turnaround: 68  Wait: 59
+Job 6 -- Response time: 68  Turnaround: 84  Wait: 68
+Job 7 -- Response time: 84  Turnaround: 91  Wait: 84
+Job 8 -- Response time: 91  Turnaround: 101  Wait: 91
+Job 9 -- Response time: 101  Turnaround: 113  Wait: 101
+Job 10 -- Response time: 113  Turnaround: 132  Wait: 113
+Job 11 -- Response time: 132  Turnaround: 143  Wait: 132
+Job 12 -- Response time: 143  Turnaround: 149  Wait: 143
+Job 13 -- Response time: 149  Turnaround: 165  Wait: 149
+Job 14 -- Response time: 165  Turnaround: 178  Wait: 165
+Job 15 -- Response time: 178  Turnaround: 184  Wait: 178
+Job 16 -- Response time: 184  Turnaround: 203  Wait: 184
+Job 17 -- Response time: 203  Turnaround: 223  Wait: 203
+Job 18 -- Response time: 223  Turnaround: 240  Wait: 223
+Job 19 -- Response time: 240  Turnaround: 259  Wait: 240
+Average -- Response: 113.65  Turnaround: 126.60  Wait: 113.65
+End analyzing FIFO.

@@ -15,20 +15,26 @@ struct job {
 };
 
 enum scheduler_algorithm_type {FIFO, SJF, RR};
+enum execution_mode {EXECUTION, ANALYSIS, BOTH};
 
 int exicution_time = 0;
 
-int parseAlgorithm(char *v){
+
+//mode 0 is just algorithm exicution
+//mode 1 is just analysis
+//mode 2 is both
+
+int parseAlgorithm(char *v, int scheduler_mode){
     if(v[0] == 'F' && v[1] == 'I' && v[2] == 'F' && v[3] == 'O'){
-        printf("Exicution trace with FIFO:\n");
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Execution trace with FIFO:\n");
         return FIFO;
     }
     else if(v[0] == 'S' && v[1] == 'J' && v[2] == 'F'){
-        printf("Exicution trace with SJF:\n");
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Execution trace with SJF:\n");
         return SJF;
     }
     else if(v[0] == 'R' && v[1] == 'R'){
-        printf("Exicution trace with RR:\n");
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Execution trace with RR:\n");
         return RR;
     }
     printf("Invalid algorithm type\n");
@@ -38,11 +44,12 @@ int parseAlgorithm(char *v){
 int main(int argc, char **argv){
     //require argc 4
     if(argc != 4){
-        printf("proper syntax: [method] [file] [exicution-time]\n");
+        printf("proper syntax: [method] [file] [execution-time]\n");
         exit(EXIT_FAILURE);
     }
-
-    int alg = parseAlgorithm(argv[1]);
+    //setting the scheduler exicution mode
+    int scheduler_mode = BOTH;
+    int alg = parseAlgorithm(argv[1], scheduler_mode);
 
     char *file_name = argv[2];
     FILE *in_file = fopen(file_name, "r");
@@ -61,10 +68,48 @@ int main(int argc, char **argv){
     }
 
     if(alg == FIFO){
-        for(int i = 0; i < numb_jobs; i++){  
-            printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].length);
+        for(int i = 0; i < numb_jobs; i++){
+            job_stack[i].response = 0;
+            job_stack[i].turnaround = 0;
+            job_stack[i].wait = 0;
         }
-        printf("End of Exicution FIFO\n");
+        for(int i = 0; i < numb_jobs; i++){  
+            if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].length);
+            //response time calculation
+            if(i == 0){
+                job_stack[i].response = 0;
+            }
+            else if(i != 0){
+                job_stack[i].response = job_stack[i - 1].length + job_stack[i - 1].response;
+            }
+
+            //turnaround time calculation
+            if(i == 0){
+                job_stack[i].turnaround = job_stack[i].length;
+            }
+            else if(i != 0){
+                job_stack[i].turnaround = job_stack[i - 1].turnaround + job_stack[i].length;
+            }
+
+            //wait time calculation
+            job_stack[i].wait = job_stack[i].response;
+        }
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("End of execution with FIFO.\n");
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Begin analyzing FIFO:\n");
+        double avg_response = 0;
+        double avg_turnaround = 0;
+        double avg_wait = 0;
+        for(int i = 0; i < numb_jobs; i++){
+            avg_response += (double) job_stack[i].response;
+            avg_turnaround += (double) job_stack[i].turnaround;
+            avg_wait += (double) job_stack[i].wait;
+            if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+        }
+        avg_response /= numb_jobs;
+        avg_turnaround /= numb_jobs;
+        avg_wait /= numb_jobs;
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Average -- Response: %.2f  Turnaround: %.2f  Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("End analyzing FIFO.\n");
     }
     else if(alg == SJF){
         for(int i = 0; i < numb_jobs; i++){
@@ -77,14 +122,48 @@ int main(int argc, char **argv){
             }
         }
         for(int i = 0; i < numb_jobs; i++){
-            printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].length);
+            job_stack[i].response = 0;
+            job_stack[i].turnaround = 0;
+            job_stack[i].wait = 0;
         }
-        printf("End of Exicution SJF.\n");
-        printf("Begin analyzing SJF:\n");
         for(int i = 0; i < numb_jobs; i++){
-            printf("Job %d -- Response Time: %d Turnaround: %d Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+            if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].length);
+
+            //response time calculation
+            if(i == 0){
+                job_stack[i].response = 0;
+            }
+            else if(i != 0){
+                job_stack[i].response = job_stack[i - 1].length + job_stack[i - 1].response;
+            }
+
+            //turnaround time calculation
+            if(i == 0){
+                job_stack[i].turnaround = job_stack[i].length;
+            }
+            else if(i != 0){
+                job_stack[i].turnaround = job_stack[i - 1].turnaround + job_stack[i].length;
+            }
+
+            //wait time calculation
+            job_stack[i].wait = job_stack[i].response;
         }
-        printf("End analyzing SJF.\n");
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("End of execution with SJF.\n");
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Begin analyzing SJF:\n");
+        double avg_response = 0;
+        double avg_turnaround = 0;
+        double avg_wait = 0;
+        for(int i = 0; i < numb_jobs; i++){
+            avg_response += (double) job_stack[i].response;
+            avg_turnaround += (double) job_stack[i].turnaround;
+            avg_wait += (double) job_stack[i].wait;
+            if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+        }
+        avg_response /= numb_jobs;
+        avg_turnaround /= numb_jobs;
+        avg_wait /= numb_jobs;
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Average -- Response: %.2f  Turnaround: %.2f  Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("End analyzing SJF.\n");
     }
     else if(alg == RR){
         int rr_time = atoi(argv[3]);
@@ -99,7 +178,7 @@ int main(int argc, char **argv){
             job_stack[i].wait = job_stack[i].length;
             job_stack[i].turnaround = 0;
         }
-        while(!completed && cycle < 4){
+        while(!completed){
             completed = 1;
             for(int i = 0; i < numb_jobs; i++){
                 //algorithm implementation
@@ -108,13 +187,13 @@ int main(int argc, char **argv){
                     job_stack[i].runtime = rr_time;
                     job_stack[i].length -= rr_time;
                     job_stack[i].updated = 1;
-                    printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
+                    if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
                 }
                 else if(job_stack[i].length <= rr_time && job_stack[i].length != 0){
                     job_stack[i].runtime = job_stack[i].length;
                     job_stack[i].length -= job_stack[i].runtime;
                     job_stack[i].updated = 1;
-                    printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
+                    if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("Job %d ran for: %d\n", job_stack[i].id, job_stack[i].runtime);
                 }
                 
                 //analysis calculations
@@ -135,7 +214,7 @@ int main(int argc, char **argv){
                 }
                 else if(i == 0 && !job_stack[i].complete){
                     int prev_found = 0;
-                    for(int j = numb_jobs; j > 0; j--){
+                    for(int j = numb_jobs; j >= 0; j--){
                         if(job_stack[j].updated && !prev_found){
                             job_stack[i].turnaround = job_stack[j].turnaround + job_stack[i].runtime;
                             //wait time calculation
@@ -181,8 +260,8 @@ int main(int argc, char **argv){
             }
             cycle++;
         }
-        printf("End of Exicution RR.\n");
-        printf("Begin analyzing RR:\n");
+        if(scheduler_mode == EXECUTION || scheduler_mode == BOTH) printf("End of execution with RR.\n");
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Begin analyzing RR:\n");
         double avg_response = 0;
         double avg_turnaround = 0;
         double avg_wait = 0;
@@ -190,13 +269,13 @@ int main(int argc, char **argv){
             avg_response += (double) job_stack[i].response;
             avg_turnaround += (double) job_stack[i].turnaround;
             avg_wait += (double) job_stack[i].wait;
-            printf("Job %d -- Response Time: %d Turnaround: %d Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
+            if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Job %d -- Response time: %d  Turnaround: %d  Wait: %d\n", job_stack[i].id, job_stack[i].response, job_stack[i].turnaround, job_stack[i].wait);
         }
         avg_response /= numb_jobs;
         avg_turnaround /= numb_jobs;
         avg_wait /= numb_jobs;
-        printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
-        printf("End analyzing RR.\n");
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("Average -- Response: %.2f  Turnaround: %.2f  Wait: %.2f\n", avg_response, avg_turnaround, avg_wait);
+        if(scheduler_mode == ANALYSIS || scheduler_mode == BOTH) printf("End analyzing RR.\n");
     }
 
     exit(EXIT_SUCCESS);
